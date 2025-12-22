@@ -24,7 +24,7 @@ jobs:
 
     - name: Run ML Training
       run: |
-        python MLProject/modelling.py
+        run: conda run -n mlproject-env python MLProject/modelling.py
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
