@@ -10,8 +10,7 @@ import dagshub
 dagshub.init(
     repo_owner='pemujacoding',
     repo_name='medical_cost_model',
-    mlflow=True,
-    token=os.environ.get("DAGSHUB_TOKEN"))
+    mlflow=True)
 
 def modelling() :
 
