@@ -10,13 +10,13 @@ import dagshub
 dagshub.init(
     repo_owner='pemujacoding',
     repo_name='medical_cost_model',
-    mlflow=True)
+    mlflow=True,
+    )
 
 def modelling() :
 
     # MLflow dagshub
-    dagshub_token = os.environ.get("DAGSHUB_TOKEN")
-    mlflow.set_tracking_uri(f"https://{dagshub_token}@dagshub.com/pemujacoding/medical_cost_model.mlflow")
+    mlflow.set_tracking_uri("https://dagshub.com/pemujacoding/medical_cost_model.mlflow/")
 
     # MLflow setup
     experiment_name = "Online Training Medical Cost"
