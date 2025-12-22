@@ -5,8 +5,13 @@ import mlflow.sklearn
 from sklearn.linear_model import SGDRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from joblib import dump
+import os
 import dagshub
-dagshub.init(repo_owner='pemujacoding', repo_name='medical_cost_model', mlflow=True)
+dagshub.init(
+    repo_owner='pemujacoding',
+    repo_name='medical_cost_model',
+    mlflow=True,
+    token=os.environ.get("DAGSHUB_TOKEN"))
 
 def modelling() :
 

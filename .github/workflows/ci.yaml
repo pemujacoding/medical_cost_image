@@ -11,6 +11,7 @@ on:
 jobs:
   train:
     runs-on: ubuntu-latest
+    DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
 
     steps:
     - name: Checkout code
