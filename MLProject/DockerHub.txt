@@ -1,0 +1,3 @@
+Github link : https://github.com/pemujacoding/medical_cost_image
+Dagshub link : https://dagshub.com/pemujacoding/medical_cost_model/
+Dockerhub link : https://hub.docker.com/repository/docker/pemujacoding/medical_cost_image/
