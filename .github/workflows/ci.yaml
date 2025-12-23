@@ -50,7 +50,7 @@ jobs:
     - name: Build Docker Image
       run: |
         mlflow models build-docker \
-          -m MLProject/online_model \
+          -m MLProject/MLProject \
           -n ${{ secrets.DOCKER_USERNAME }}/medical_cost_image
 
     - name: Push Docker Image
