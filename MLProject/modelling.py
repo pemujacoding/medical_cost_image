@@ -52,7 +52,7 @@ def modelling():
 
         # 3. SAVE LOCALLY (For Docker build step)
         # This creates the MLProject/online_model folder with MLmodel metadata
-        local_model_path = "MLProject/MLModel"
+        local_model_path = "MLModel"
         if os.path.exists(local_model_path):
             shutil.rmtree(local_model_path)
             
