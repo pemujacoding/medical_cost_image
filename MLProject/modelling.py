@@ -25,6 +25,8 @@ def modelling():
         mlflow.create_experiment(experiment_name)
     mlflow.set_experiment(experiment_name)
 
+    mlflow.autolog(log_models=True)
+
     # Load data
     df = pd.read_csv("medical_cost_preprocessed.csv")
     X = df.drop(columns=["annual_medical_cost"])
@@ -57,7 +59,8 @@ def modelling():
         rmse = np.sqrt(mse)
         r2 = r2_score(y, preds)
 
-        print("Training with MLflow autolog completed.")
+    print("Training with MLflow autolog completed.")
+
 
 if __name__ == "__main__":
     modelling()
