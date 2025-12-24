@@ -37,11 +37,11 @@ jobs:
       run: |
         python MLProject/modelling.py
 
-  - name: Build Docker Image from MLflow Model Registry
-    run: |
-      mlflow models build-docker \
-        -m models:/MedicalCostModel/Production \
-        -n ${{ secrets.DOCKER_USERNAME }}/medical_cost_image
+    - name: Build Docker Image from MLflow Model Registry
+      run: |
+        mlflow models build-docker \
+          -m models:/MedicalCostModel/Production \
+          -n ${{ secrets.DOCKER_USERNAME }}/medical_cost_image
 
     - name: Log in to Docker Hub
       run: |
