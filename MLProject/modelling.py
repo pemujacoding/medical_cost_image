@@ -40,8 +40,8 @@ def modelling():
         mlflow.log_metric("r2_score", r2)
 
         # 1. Save as a single file (for your artifact upload step)
-        dump(model, "MLProject/online_sgd_model.joblib")
-        mlflow.log_artifact("MLProject/online_sgd_model.joblib")
+        dump(model, "MLModel/online_sgd_model.joblib")
+        mlflow.log_artifact("MLModel/online_sgd_model.joblib")
 
         # 2. Log to DagsHub (Remote)
         mlflow.sklearn.log_model(
