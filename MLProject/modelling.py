@@ -72,7 +72,7 @@ with mlflow.start_run():
         input_example=X.iloc[:5]
     )
 
-local_model_path = "MLProject/MLProject"
+local_model_path = "MLProject/Model"
 if os.path.exists(local_model_path):
     shutil.rmtree(local_model_path)
     
