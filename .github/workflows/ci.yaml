@@ -35,7 +35,7 @@ jobs:
 
     - name: Run ML Training
       run: |
-        mlflow run MLProject/MLProjects
+        mlflow run MLProject
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
