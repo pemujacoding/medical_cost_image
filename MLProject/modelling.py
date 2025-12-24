@@ -5,62 +5,58 @@ import mlflow.sklearn
 from sklearn.linear_model import SGDRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from joblib import dump
+
+
 import dagshub
+dagshub.init(repo_owner='pemujacoding', repo_name='medical_cost_model', mlflow=True)
 
-# =====================
-# DAGSHUB + MLFLOW
-# =====================
-dagshub.init(
-    repo_owner="pemujacoding",
-    repo_name="medical_cost_model",
-    mlflow=True
-)
+# MLflow dagshub
+mlflow.set_tracking_uri("https://dagshub.com/pemujacoding/medical_cost_model.mlflow")
 
-mlflow.set_tracking_uri(
-    "https://dagshub.com/pemujacoding/medical_cost_model.mlflow"
-)
-
-# =====================
-# EXPERIMENT
-# =====================
+# MLflow setup
 experiment_name = "Online Training Medical Cost"
+
+existing_experiment = mlflow.get_experiment_by_name(experiment_name)
+if existing_experiment is None:
+    mlflow.create_experiment(experiment_name)
 mlflow.set_experiment(experiment_name)
 
-# =====================
-# LOAD DATA
-# =====================
-df = pd.read_csv("MLProject/medical_cost_preprocessed.csv")
+# Load preprocessed data
+df = pd.read_csv("medical_cost_preprocessed.csv")
+
 X = df.drop(columns=["annual_medical_cost"])
 y = df["annual_medical_cost"]
 
-# =====================
-# PARAMS (WAJIB DICT)
-# =====================
-params = {
-    "max_iter": 1,
-    "learning_rate": "invscaling",
-    "eta0": 0.01,
-    "random_state": 42
-}
 
-model = SGDRegressor(**params)
+model = SGDRegressor(
+    max_iter=1, 
+    learning_rate="invscaling",
+    eta0=0.01,
+    random_state=42
+)
+params = {
+    "max_iter":1, 
+    "learning_rate":"invscaling",
+    "eta0" : 0.01,
+    "random_state":42
+    }
 batch_size = 256
 
-# =====================
-# TRAINING
-# =====================
-with mlflow.start_run() :
+with mlflow.start_run():
 
     mlflow.log_params(params)
 
     for i in range(0, len(X), batch_size):
-        model.partial_fit(
-            X.iloc[i:i + batch_size],
-            y.iloc[i:i + batch_size]
-        )
+        X_batch = X.iloc[i:i + batch_size]
+        y_batch = y.iloc[i:i + batch_size]
 
+        # Incremental training
+        model.partial_fit(X_batch, y_batch)
+
+    # Evaluation (after training)
     preds = model.predict(X)
-    rmse = np.sqrt(mean_squared_error(y, preds))
+    mse = mean_squared_error(y, preds)
+    rmse = np.sqrt(mse)
     r2 = r2_score(y, preds)
 
     mlflow.log_metric("rmse", rmse)
@@ -70,9 +66,9 @@ with mlflow.start_run() :
     mlflow.log_artifact("online_sgd_model.joblib")
 
     mlflow.sklearn.log_model(
-    sk_model=model,
-    artifact_path="online_model",
-    input_example=X.iloc[:5],
-    registered_model_name="MedicalCostModel"
-)
-print("✅ Online training completed & logged to Dagshub")
+        sk_model=model,
+        artifact_path="online_model",
+        input_example=X.iloc[:5]
+    )
+
+print("Online training completed.")

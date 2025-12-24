@@ -5,28 +5,28 @@ permissions:
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
-  train-and-build:
+  train:
     runs-on: ubuntu-latest
-
+    
+    # These defaults ensure Conda is activated for EVERY step automatically
     defaults:
       run:
         shell: bash -l {0}
 
     env:
-      MLFLOW_TRACKING_URI: https://dagshub.com/pemujacoding/medical_cost_model.mlflow
+      DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
       MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_TOKEN }}
       MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
-      DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Miniconda
+    - name: Set up conda
       uses: conda-incubator/setup-miniconda@v2
       with:
         environment-file: MLProject/conda.yaml
@@ -35,20 +35,25 @@ jobs:
 
     - name: Run ML Training
       run: |
-        python MLProject/modelling.py
+        mlflow run MLProject/MLProject
 
-    - name: Build Docker Image from MLflow Model Registry
-      run: |
-        mlflow models build-docker \
-          -m models:/MedicalCostModel/Production \
-          -n ${{ secrets.DOCKER_USERNAME }}/medical_cost_image
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: trained-model
+        path: MLProject/online_sgd_model.joblib
 
     - name: Log in to Docker Hub
       run: |
-        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login \
-          -u "${{ secrets.DOCKER_USERNAME }}" \
-          --password-stdin
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    - name: Build Docker Image
+      run: |
+        mlflow models build-docker \
+          -m MLProject/Model \
+          -n ${{ secrets.DOCKER_USERNAME }}/medical_cost_image
 
     - name: Push Docker Image
       run: |
+        docker tag ${{ secrets.DOCKER_USERNAME }}/medical_cost_image:latest ${{ secrets.DOCKER_USERNAME }}/medical_cost_image:latest
         docker push ${{ secrets.DOCKER_USERNAME }}/medical_cost_image:latest
