@@ -38,11 +38,12 @@ jobs:
         python MLProject/modelling.py
 
     - name: Get latest MLflow run id
-      id: get_run
       run: |
-        RUN_ID=$(mlflow runs list --max-results 1 --output json | jq -r '.[0].run_id')
+        EXP_ID=$(mlflow experiments list | grep "Online Training Medical Cost" | awk '{print $1}')
+        RUN_ID=$(mlflow runs list --experiment-id $EXP_ID | awk 'NR==2 {print $1}')
         echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
         echo "Latest run id: $RUN_ID"
+
 
     - name: Build Docker Image from MLflow Run
       run: |
