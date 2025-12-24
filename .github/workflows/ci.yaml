@@ -41,7 +41,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: trained-model
-        path: MLModel/online_sgd_model.joblib
+        path: online_sgd_model.joblib
 
     - name: Log in to Docker Hub
       run: |
