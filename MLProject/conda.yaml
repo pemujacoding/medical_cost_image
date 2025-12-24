@@ -12,3 +12,4 @@ dependencies:
       - mlflow
       - joblib
       - dagshub
+      - run

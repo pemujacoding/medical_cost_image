@@ -6,6 +6,7 @@ from sklearn.linear_model import SGDRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from joblib import dump
 import dagshub
+import run
 
 # =====================
 # DAGSHUB + MLFLOW
@@ -50,7 +51,7 @@ batch_size = 256
 # TRAINING
 # =====================
 with mlflow.start_run():
-
+    run_id = run.info.run_id
     mlflow.log_params(params)
 
     for i in range(0, len(X), batch_size):
@@ -78,4 +79,6 @@ with mlflow.start_run():
         input_example=X.iloc[:5]
     )
 
+with open("run_id.txt", "w") as f:
+    f.write(run_id)
 print("✅ Online training completed & logged to Dagshub")
