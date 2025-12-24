@@ -6,11 +6,6 @@ from sklearn.linear_model import SGDRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 
 # =====================
-# AUTOLOG (WAJIB)
-# =====================
-mlflow.autolog(log_models=True)
-
-# =====================
 # LOAD DATA
 # =====================
 df = pd.read_csv("medical_cost_preprocessed.csv")
@@ -29,25 +24,33 @@ model = SGDRegressor(
 
 batch_size = 256
 
-# =====================
-# ONLINE TRAINING
-# =====================
-for i in range(0, len(X), batch_size):
-    model.partial_fit(
-        X.iloc[i:i + batch_size],
-        y.iloc[i:i + batch_size]
+with mlflow.start_run():
+
+    # =====================
+    # ONLINE TRAINING
+    # =====================
+    for i in range(0, len(X), batch_size):
+        model.partial_fit(
+            X.iloc[i:i + batch_size],
+            y.iloc[i:i + batch_size]
+        )
+
+    # =====================
+    # EVALUATION
+    # =====================
+    preds = model.predict(X)
+    rmse = np.sqrt(mean_squared_error(y, preds))
+    r2 = r2_score(y, preds)
+
+    mlflow.log_metric("rmse", rmse)
+    mlflow.log_metric("r2", r2)
+
+    # =====================
+    # 🔥 LOG MODEL (INI KUNCI)
+    # =====================
+    mlflow.sklearn.log_model(
+        sk_model=model,
+        artifact_path="model"
     )
 
-# =====================
-# TRIGGER AUTOLOG MODEL
-# =====================
-model.fit(X.iloc[:batch_size], y.iloc[:batch_size])
-
-# =====================
-# EVALUATION
-# =====================
-preds = model.predict(X)
-rmse = np.sqrt(mean_squared_error(y, preds))
-r2 = r2_score(y, preds)
-
-print("✅ Training with MLflow autolog completed")
+print("✅ Training + model logged to MLflow")
