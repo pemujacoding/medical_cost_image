@@ -41,7 +41,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: trained-model
-        path: online_sgd_model.joblib
+        path: MLProject/online_sgd_model.joblib
 
     - name: Log in to Docker Hub
       run: |
@@ -50,7 +50,7 @@ jobs:
     - name: Build Docker Image
       run: |
         mlflow models build-docker \
-          -m MLModel \
+          -m MLProject/MLModel \
           -n ${{ secrets.DOCKER_USERNAME }}/medical_cost_image
 
     - name: Push Docker Image
