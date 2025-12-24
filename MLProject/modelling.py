@@ -8,12 +8,6 @@ from joblib import dump
 import os
 import shutil
 
-import dagshub
-dagshub.init(repo_owner='pemujacoding', repo_name='medical_cost_model', mlflow=True)
-
-# MLflow dagshub
-mlflow.set_tracking_uri("https://dagshub.com/pemujacoding/medical_cost_model.mlflow")
-
 # MLflow setup
 experiment_name = "Online Training Medical Cost"
 
