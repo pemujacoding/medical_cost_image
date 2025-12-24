@@ -40,8 +40,8 @@ def modelling():
         mlflow.log_metric("r2_score", r2)
 
         # 1. Save as a single file (for your artifact upload step)
-        dump(model, "MLProject/MLModel/online_sgd_model.joblib")
-        mlflow.log_artifact("MLProject/MLModel/online_sgd_model.joblib")
+        dump(model, "MLModel/online_sgd_model.joblib")
+        mlflow.log_artifact("MLModel/online_sgd_model.joblib")
 
         # 2. Log to DagsHub (Remote)
         mlflow.sklearn.log_model(
@@ -52,7 +52,7 @@ def modelling():
 
         # 3. SAVE LOCALLY (For Docker build step)
         # This creates the MLProject/online_model folder with MLmodel metadata
-        local_model_path = "MLProject/MLModel"
+        local_model_path = "MLModel"
         if os.path.exists(local_model_path):
             shutil.rmtree(local_model_path)
             
