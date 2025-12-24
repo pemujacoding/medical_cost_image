@@ -5,7 +5,8 @@ import mlflow.sklearn
 from sklearn.linear_model import SGDRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from joblib import dump
-
+import os
+import shutil
 
 import dagshub
 dagshub.init(repo_owner='pemujacoding', repo_name='medical_cost_model', mlflow=True)
@@ -71,4 +72,13 @@ with mlflow.start_run():
         input_example=X.iloc[:5]
     )
 
+local_model_path = "MLProject/MLProject"
+if os.path.exists(local_model_path):
+    shutil.rmtree(local_model_path)
+    
+mlflow.sklearn.save_model(
+    sk_model=model,
+    path=local_model_path,
+    input_example=X.iloc[:5]
+)
 print("Online training completed.")
