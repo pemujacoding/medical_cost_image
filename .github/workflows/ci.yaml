@@ -21,7 +21,7 @@ jobs:
       DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
       MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_TOKEN }}
       MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
-
+      MLFLOW_TRACKING_URI: ${{ secrets.DAGSHUB_TOKEN }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
