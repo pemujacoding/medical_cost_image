@@ -28,7 +28,7 @@ def modelling():
     mlflow.autolog(log_models=True)
 
     # Load data
-    df = pd.read_csv("MLProject/medical_cost_preprocessed.csv")
+    df = pd.read_csv("medical_cost_preprocessed.csv")
     X = df.drop(columns=["annual_medical_cost"])
     y = df["annual_medical_cost"]
 
