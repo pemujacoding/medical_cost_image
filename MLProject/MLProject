@@ -1,0 +1,5 @@
+name: medical-cost-training
+
+entry_points:
+  main:
+    command: "python modelling.py"
