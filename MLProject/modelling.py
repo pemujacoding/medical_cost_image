@@ -6,7 +6,6 @@ from sklearn.linear_model import SGDRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from joblib import dump
 import dagshub
-import run
 
 # =====================
 # DAGSHUB + MLFLOW
@@ -50,8 +49,9 @@ batch_size = 256
 # =====================
 # TRAINING
 # =====================
-with mlflow.start_run():
+with mlflow.start_run() as run:
     run_id = run.info.run_id
+
     mlflow.log_params(params)
 
     for i in range(0, len(X), batch_size):
@@ -60,7 +60,6 @@ with mlflow.start_run():
             y.iloc[i:i + batch_size]
         )
 
-    # Evaluation
     preds = model.predict(X)
     rmse = np.sqrt(mean_squared_error(y, preds))
     r2 = r2_score(y, preds)
@@ -68,16 +67,15 @@ with mlflow.start_run():
     mlflow.log_metric("rmse", rmse)
     mlflow.log_metric("r2_score", r2)
 
-    # Save local artifact (for CI / backup)
     dump(model, "online_sgd_model.joblib")
     mlflow.log_artifact("online_sgd_model.joblib")
 
-    # Log MLflow model (INI YANG PENTING)
     mlflow.sklearn.log_model(
         sk_model=model,
         artifact_path="online_model",
         input_example=X.iloc[:5]
     )
+
 
 with open("run_id.txt", "w") as f:
     f.write(run_id)
