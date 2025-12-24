@@ -39,10 +39,9 @@ jobs:
 
     - name: Read MLflow Run ID
       run: |
-        RUN_ID=$(cat MLProject/run_id.txt)
+        RUN_ID=$(cat run_id.txt)
         echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
         echo "Using Run ID: $RUN_ID"
-
 
     - name: Build Docker Image from MLflow Run
       run: |
