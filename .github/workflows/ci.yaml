@@ -32,26 +32,20 @@ jobs:
         activate-environment: mlproject-env
         auto-activate-base: false
 
+    # =========================
+    # TRAIN MODEL (LOG KE DAGSHUB)
+    # =========================
     - name: Run ML Training
       run: |
-        mlflow run MLProject
+        python MLProject/modelling.py
 
     # =========================
-    # 🔥 AMBIL RUN_ID TERAKHIR
-    # =========================
-    - name: Get latest MLflow run id
-      id: get_run
-      run: |
-        RUN_ID=$(mlflow runs list --max-results 1 --output json | jq -r '.[0].run_id')
-        echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-
-    # =========================
-    # BUILD DOCKER DARI MODEL
+    # BUILD DOCKER DARI MODEL DAGSHUB
     # =========================
     - name: Build Docker Image
       run: |
         mlflow models build-docker \
-          -m runs:/$RUN_ID/model \
+          -m models:/Online%20Training%20Medical%20Cost/Production \
           -n ${{ secrets.DOCKER_USERNAME }}/medical_cost_image
 
     - name: Log in to Docker Hub
