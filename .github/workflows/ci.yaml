@@ -37,17 +37,11 @@ jobs:
       run: |
         python MLProject/modelling.py
 
-    - name: Read MLflow Run ID
-      run: |
-        RUN_ID=$(cat run_id.txt)
-        echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-        echo "Using Run ID: $RUN_ID"
-
-    - name: Build Docker Image from MLflow Run
-      run: |
-        mlflow models build-docker \
-          -m runs:/$RUN_ID/online_model \
-          -n ${{ secrets.DOCKER_USERNAME }}/medical_cost_image
+  - name: Build Docker Image from MLflow Model Registry
+    run: |
+      mlflow models build-docker \
+        -m models:/MedicalCostModel/Production \
+        -n ${{ secrets.DOCKER_USERNAME }}/medical_cost_image
 
     - name: Log in to Docker Hub
       run: |

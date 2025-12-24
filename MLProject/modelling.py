@@ -49,8 +49,7 @@ batch_size = 256
 # =====================
 # TRAINING
 # =====================
-with mlflow.start_run() as run:
-    run_id = run.info.run_id
+with mlflow.start_run() :
 
     mlflow.log_params(params)
 
@@ -71,12 +70,9 @@ with mlflow.start_run() as run:
     mlflow.log_artifact("online_sgd_model.joblib")
 
     mlflow.sklearn.log_model(
-        sk_model=model,
-        artifact_path="online_model",
-        input_example=X.iloc[:5]
-    )
-
-
-with open("run_id.txt", "w") as f:
-    f.write(run_id)
+    sk_model=model,
+    artifact_path="online_model",
+    input_example=X.iloc[:5],
+    registered_model_name="MedicalCostModel"
+)
 print("✅ Online training completed & logged to Dagshub")
