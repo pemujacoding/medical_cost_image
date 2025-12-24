@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  train:
+  train-and-build:
     runs-on: ubuntu-latest
 
     defaults:
@@ -20,38 +20,41 @@ jobs:
       MLFLOW_TRACKING_URI: https://dagshub.com/pemujacoding/medical_cost_model.mlflow
       MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_TOKEN }}
       MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
-      DAGSHUB_USER_TOKEN : ${{ secrets.DAGSHUB_TOKEN }}
+      DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up conda
+    - name: Set up Miniconda
       uses: conda-incubator/setup-miniconda@v2
       with:
         environment-file: MLProject/conda.yaml
         activate-environment: mlproject-env
         auto-activate-base: false
 
-    # =========================
-    # TRAIN MODEL (LOG KE DAGSHUB)
-    # =========================
     - name: Run ML Training
       run: |
         python MLProject/modelling.py
 
-    # =========================
-    # BUILD DOCKER DARI MODEL DAGSHUB
-    # =========================
-    - name: Build Docker Image
+    - name: Get latest MLflow run id
+      id: get_run
+      run: |
+        RUN_ID=$(mlflow runs list --max-results 1 --output json | jq -r '.[0].run_id')
+        echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+        echo "Latest run id: $RUN_ID"
+
+    - name: Build Docker Image from MLflow Run
       run: |
         mlflow models build-docker \
-          -m models:/Online%20Training%20Medical%20Cost/Production \
+          -m runs:/$RUN_ID/online_model \
           -n ${{ secrets.DOCKER_USERNAME }}/medical_cost_image
 
     - name: Log in to Docker Hub
       run: |
-        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login \
+          -u "${{ secrets.DOCKER_USERNAME }}" \
+          --password-stdin
 
     - name: Push Docker Image
       run: |
