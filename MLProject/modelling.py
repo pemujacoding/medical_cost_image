@@ -66,13 +66,14 @@ with mlflow.start_run():
         input_example=X.iloc[:5]
     )
 
-local_model_path = "MLProject/Model"
-if os.path.exists(local_model_path):
-    shutil.rmtree(local_model_path)
+    local_model_path = "MLProject/Model"
+    if os.path.exists(local_model_path):
+        shutil.rmtree(local_model_path)
+        
+    mlflow.sklearn.save_model(
+        sk_model=model,
+        path=local_model_path,
+        input_example=X.iloc[:5]
+    )
     
-mlflow.sklearn.save_model(
-    sk_model=model,
-    path=local_model_path,
-    input_example=X.iloc[:5]
-)
 print("Online training completed.")
