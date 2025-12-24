@@ -1,12 +1,15 @@
 name: ML CI Workflow
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: ["main"]
   workflow_dispatch:
 
 jobs:
-  train:
+  train-and-build:
     runs-on: ubuntu-latest
 
     defaults:
@@ -17,47 +20,41 @@ jobs:
       MLFLOW_TRACKING_URI: https://dagshub.com/pemujacoding/medical_cost_model.mlflow
       MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_TOKEN }}
       MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+      DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Setup Conda
+    - name: Set up Miniconda
       uses: conda-incubator/setup-miniconda@v2
       with:
-        environment-file: conda.yaml
+        environment-file: MLProject/conda.yaml
         activate-environment: mlproject-env
         auto-activate-base: false
 
-    # =========================
-    # TRAIN MODEL
-    # =========================
-    - name: Run Training
+    - name: Run ML Training
       run: |
-        python modelling.py
+        python MLProject/modelling.py
 
-    # =========================
-    # READ RUN_ID
-    # =========================
     - name: Read MLflow Run ID
       run: |
-        RUN_ID=$(cat run_id.txt)
+        RUN_ID=$(cat MLProject/run_id.txt)
         echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
         echo "Using Run ID: $RUN_ID"
 
-    # =========================
-    # BUILD DOCKER IMAGE
-    # =========================
-    - name: Build Docker Image
+
+    - name: Build Docker Image from MLflow Run
       run: |
         mlflow models build-docker \
           -m runs:/$RUN_ID/online_model \
           -n ${{ secrets.DOCKER_USERNAME }}/medical_cost_image
 
-    - name: Login to Docker Hub
+    - name: Log in to Docker Hub
       run: |
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login \
-          -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          -u "${{ secrets.DOCKER_USERNAME }}" \
+          --password-stdin
 
     - name: Push Docker Image
       run: |
